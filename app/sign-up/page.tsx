@@ -1,10 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
+import { FiEye, FiEyeOff } from "react-icons/fi"
 
 export default function SignUpPage() {
   const [role, setRole] = useState<"vendor" | "customer">("customer")
+  const [showPassword, setShowPassword] = useState(false)
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const image = formData.get("profileImage")
+
+    console.log({
+      fullName: formData.get("fullName"),
+      email: formData.get("email"),
+      
+      ...(image instanceof File && image.size > 0
+        ? { profileImage: image }
+        : {}),
+    })
+  }
 
   return (
     <main className="min-h-screen bg-[#FAF8F2] px-4 py-8 font-serif sm:py-12">
@@ -23,18 +40,6 @@ export default function SignUpPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              aria-pressed={role === "vendor"}
-              onClick={() => setRole("vendor")}
-              className={`rounded-xl border-2 px-4 py-3.5 text-[15px] font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none ${
-                role === "vendor"
-                  ? "border-[#123D30] bg-[#123D30] text-white"
-                  : "border-[#E5DED2] bg-[#FAF8F2] text-[#123D30] hover:border-[#123D30]"
-              }`}
-            >
-              Vendor
-            </button>
-            <button
-              type="button"
               aria-pressed={role === "customer"}
               onClick={() => setRole("customer")}
               className={`rounded-xl border-2 px-4 py-3.5 text-[15px] font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none ${
@@ -45,11 +50,23 @@ export default function SignUpPage() {
             >
               Customer
             </button>
+            <button
+              type="button"
+              aria-pressed={role === "vendor"}
+              onClick={() => setRole("vendor")}
+              className={`rounded-xl border-2 px-4 py-3.5 text-[15px] font-bold transition-colors focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none ${
+                role === "vendor"
+                  ? "border-[#123D30] bg-[#123D30] text-white"
+                  : "border-[#E5DED2] bg-[#FAF8F2] text-[#123D30] hover:border-[#123D30]"
+              }`}
+            >
+              Vendor
+            </button>
           </div>
           <input type="hidden" name="role" value={role} />
         </div>
 
-        <form className="mt-6 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
           <div>
             <label
               htmlFor="fullName"
@@ -99,7 +116,7 @@ export default function SignUpPage() {
             <input
               id="profileImage"
               name="profileImage"
-              type="file"
+              type="hidden"
               accept="image/*"
               className="sr-only"
             />
@@ -123,38 +140,32 @@ export default function SignUpPage() {
             >
               Password
             </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder="Create a password"
-              required
-              className="min-h-14 w-full rounded-2xl border border-[#E5DED2] bg-[#FAF8F2] px-5 text-[15px] text-[#302D29] transition outline-none placeholder:text-[#A9A29A] focus:border-[#123D30] focus:bg-white focus:ring-2 focus:ring-[#123D30]/10"
-            />
-            <div className="mt-3">
-              <p className="text-[13px] text-[#6F8778]">
-                Password must contain:
-              </p>
-              <ul className="mt-2 space-y-1.5 text-[13px] text-[#6F8778]">
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C6A15B]" />
-                  At least one uppercase letter
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C6A15B]" />
-                  At least one lowercase letter
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#C6A15B]" />
-                  At least 6 characters long
-                </li>
-              </ul>
+
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="Create a password"
+                required
+                className="min-h-14 w-full rounded-2xl border border-[#E5DED2] bg-[#FAF8F2] px-5 pr-12 text-[15px] text-[#302D29] outline-none placeholder:text-[#A9A29A] focus:border-[#123D30] focus:bg-white focus:ring-2 focus:ring-[#123D30]/10"
+              />
+
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((visible) => !visible)}
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-[#6F8778] hover:text-[#123D30]"
+              >
+                {showPassword ? <FiEyeOff /> : <FiEye />}
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
+           
             className="min-h-14 w-full rounded-2xl bg-[#123D30] px-4 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#1C5140] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Create Account
