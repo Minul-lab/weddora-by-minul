@@ -40,6 +40,11 @@ export default function Navbar() {
   const username = session?.user?.name?.trim()
   const firstLetter = username?.charAt(0).toUpperCase() || "U"
 
+  // Dynamic dashboard URL based on user role
+  const dashboardUrl = session?.user?.role
+    ? `/dashboard/${session.user.role}`
+    : null
+
   return (
     <header className="border-b border-[#E5DED2] bg-[#FAF8F2]">
       <nav
@@ -111,6 +116,17 @@ export default function Navbar() {
                 {label}
               </Link>
             ))}
+
+            {/* Dynamic Dashboard link */}
+            {session && dashboardUrl && (
+              <Link
+                href={dashboardUrl}
+                onClick={closeMenu}
+                className="flex min-h-11 items-center justify-center rounded-md px-3 text-sm font-medium text-[#302D29] transition-colors hover:bg-[#E8DCCB] hover:text-[#123D30] md:px-0 md:hover:bg-transparent"
+              >
+                Dashboard
+              </Link>
+            )}
           </div>
 
           {/* Authentication section */}
