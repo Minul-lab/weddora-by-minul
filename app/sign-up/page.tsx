@@ -3,24 +3,53 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { FiEye, FiEyeOff } from "react-icons/fi"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 export default function SignUpPage() {
+  const router = useRouter()
+
   const [role, setRole] = useState<"vendor" | "customer">("customer")
   const [showPassword, setShowPassword] = useState(false)
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [errorMessage, setErrorMessage] = useState("")
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    setErrorMessage("")
 
     const formData = new FormData(event.currentTarget)
-    const image = formData.get("profileImage")
+    const fullName = String(formData.get("fullName") ?? "").trim()
+    const email = String(formData.get("email") ?? "").trim()
+    const password = String(formData.get("password") ?? "")
 
-    console.log({
-      fullName: formData.get("fullName"),
-      email: formData.get("email"),
-      
-      ...(image instanceof File && image.size > 0
-        ? { profileImage: image }
-        : {}),
-    })
+    if (
+      password.length < 6 ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password)
+    ) {
+      setErrorMessage(
+        "Password must be at least 6 characters and include uppercase and lowercase letters."
+      )
+      return
+    }
+
+    try {
+      const { error } = await authClient.signUp.email({
+        name: fullName,
+        email,
+        password,
+      })
+
+      if (error) {
+        setErrorMessage(error.message || "Unable to create your account.")
+        return
+      }
+
+      router.push("/")
+      router.refresh()
+    } catch {
+      setErrorMessage("Something went wrong. Please try again.")
+    }
   }
 
   return (
@@ -29,6 +58,7 @@ export default function SignUpPage() {
         <h1 className="text-center text-4xl font-bold text-[#123D30]">
           Create Account
         </h1>
+
         <p className="mt-3 text-center text-[15px] text-[#6F8778]">
           Join Weddora and plan your perfect celebration.
         </p>
@@ -37,6 +67,7 @@ export default function SignUpPage() {
           <span className="mb-2 block text-sm font-bold text-[#123D30]">
             I am joining as
           </span>
+
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -50,6 +81,7 @@ export default function SignUpPage() {
             >
               Customer
             </button>
+
             <button
               type="button"
               aria-pressed={role === "vendor"}
@@ -63,10 +95,11 @@ export default function SignUpPage() {
               Vendor
             </button>
           </div>
-          <input type="hidden" name="role" value={role} />
         </div>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <input type="hidden" name="role" value={role} />
+
           <div>
             <label
               htmlFor="fullName"
@@ -104,36 +137,6 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <div className="mb-2 flex items-baseline gap-2">
-              <label
-                htmlFor="profileImage"
-                className="text-sm font-bold text-[#123D30]"
-              >
-                Profile Photo
-              </label>
-              <span className="text-xs text-[#6F8778]">(Optional)</span>
-            </div>
-            <input
-              id="profileImage"
-              name="profileImage"
-              type="hidden"
-              accept="image/*"
-              className="sr-only"
-            />
-            <label
-              htmlFor="profileImage"
-              className="flex min-h-14 cursor-pointer items-center justify-between gap-3 rounded-2xl border border-[#E5DED2] bg-[#FAF8F2] px-5 transition hover:border-[#123D30]"
-            >
-              <span className="truncate text-[15px] text-[#A9A29A]">
-                Choose profile photo
-              </span>
-              <span className="shrink-0 rounded-lg bg-[#E8DCCB] px-3.5 py-2 text-xs font-bold tracking-wide text-[#123D30] uppercase">
-                Browse
-              </span>
-            </label>
-          </div>
-
-          <div>
             <label
               htmlFor="password"
               className="mb-2 block text-sm font-bold text-[#123D30]"
@@ -163,9 +166,17 @@ export default function SignUpPage() {
             </div>
           </div>
 
+          {errorMessage && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              {errorMessage}
+            </p>
+          )}
+
           <button
             type="submit"
-           
             className="min-h-14 w-full rounded-2xl bg-[#123D30] px-4 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#1C5140] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             Create Account

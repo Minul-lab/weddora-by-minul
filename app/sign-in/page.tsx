@@ -1,12 +1,71 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { FiEye, FiEyeOff, FiLock, FiMail } from "react-icons/fi"
 import { FcGoogle } from "react-icons/fc"
+import { authClient } from "@/lib/auth-client"
 
 export default function SignInPage() {
+  const router = useRouter()
+
   const [showPassword, setShowPassword] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setErrorMessage("")
+
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get("email") ?? "").trim()
+    const password = String(formData.get("password") ?? "")
+
+    setIsSubmitting(true)
+
+    try {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+      })
+
+      if (error) {
+        setErrorMessage(
+          error.message || "Unable to sign in. Check your details."
+        )
+        return
+      }
+
+      router.replace("/")
+      router.refresh()
+    } catch {
+      setErrorMessage("Something went wrong. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setErrorMessage("")
+    setIsGoogleSubmitting(true)
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      })
+
+      if (error) {
+        setErrorMessage(error.message || "Unable to sign in with Google.")
+      }
+    } catch {
+      setErrorMessage("Something went wrong with Google sign-in.")
+    } finally {
+      setIsGoogleSubmitting(false)
+    }
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#FAF8F2] px-4 py-8">
@@ -19,10 +78,7 @@ export default function SignInPage() {
           Sign in to continue to your Weddora account.
         </p>
 
-        <form
-          className="mt-8 space-y-5"
-          onSubmit={(event) => event.preventDefault()}
-        >
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div>
             <label
               htmlFor="email"
@@ -74,7 +130,7 @@ export default function SignInPage() {
                 type="button"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 onClick={() => setShowPassword((visible) => !visible)}
-                className="absolute top-1/2 right-4 -translate-y-1/2 text-[#6F8778] hover:text-[#123D30] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:outline-none"
+                className="absolute top-1/2 right-4 -translate-y-1/2 text-[#6F8778] outline-none hover:text-[#123D30] focus-visible:ring-2 focus-visible:ring-[#C6A15B]"
               >
                 {showPassword ? (
                   <FiEyeOff aria-hidden="true" className="h-5 w-5" />
@@ -85,11 +141,21 @@ export default function SignInPage() {
             </div>
           </div>
 
+          {errorMessage && (
+            <p
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
+              {errorMessage}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="min-h-14 w-full rounded-2xl bg-[#123D30] px-4 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#1C5140] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none"
+            disabled={isSubmitting || isGoogleSubmitting}
+            className="min-h-14 w-full rounded-2xl bg-[#123D30] px-4 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#1C5140] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Sign In
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
@@ -103,10 +169,14 @@ export default function SignInPage() {
 
         <button
           type="button"
-          className="flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl border border-[#E5DED2] bg-white px-4 text-[17px] font-bold text-[#302D29] transition-colors hover:bg-[#FAF8F2] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleSubmitting || isSubmitting}
+          className="flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl border border-[#E5DED2] bg-white px-4 text-[17px] font-bold text-[#302D29] transition-colors hover:bg-[#FAF8F2] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
         >
           <FcGoogle aria-hidden="true" className="h-5 w-5" />
-          Continue with Google
+          {isGoogleSubmitting
+            ? "Connecting to Google..."
+            : "Continue with Google"}
         </button>
 
         <p className="mt-7 text-center text-[15px] text-[#6F8778]">

@@ -3,7 +3,19 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { authClient } from "@/lib/auth-client"
 import logo from "@/app/images/Weddora Floral Gold Monogram Logo.png"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const links = [
   { href: "/", label: "Home" },
@@ -12,7 +24,21 @@ const links = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const router = useRouter()
+
+  const { data: session, isPending } = authClient.useSession()
+
   const closeMenu = () => setMenuOpen(false)
+
+  const handleSignOut = async () => {
+    await authClient.signOut()
+    closeMenu()
+    router.push("/")
+    router.refresh()
+  }
+
+  const username = session?.user?.name?.trim()
+  const firstLetter = username?.charAt(0).toUpperCase() || "U"
 
   return (
     <header className="border-b border-[#E5DED2] bg-[#FAF8F2]">
@@ -26,6 +52,7 @@ export default function Navbar() {
           }
         }}
       >
+        {/* Logo */}
         <Link
           href="/"
           aria-label="Weddora home"
@@ -41,6 +68,7 @@ export default function Navbar() {
           />
         </Link>
 
+        {/* Mobile menu button */}
         <button
           type="button"
           aria-label={menuOpen ? "Close navigation" : "Open navigation"}
@@ -64,10 +92,14 @@ export default function Navbar() {
           </svg>
         </button>
 
+        {/* Navigation content */}
         <div
           id="navbar-menu"
-          className={`${menuOpen ? "grid" : "hidden"} col-span-full mt-2 gap-3 border-t border-[#E5DED2] pt-3 pb-2 md:contents`}
+          className={`${
+            menuOpen ? "grid" : "hidden"
+          } col-span-full mt-2 gap-3 border-t border-[#E5DED2] pt-3 pb-2 md:contents`}
         >
+          {/* Navigation links */}
           <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-8">
             {links.map(({ href, label }) => (
               <Link
@@ -81,22 +113,69 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Authentication section */}
           <div className="grid grid-cols-2 gap-3 md:flex md:justify-self-end">
-            <Link
-              href="/sign-in"
-              onClick={closeMenu}
-              className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#123D30] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1C5140]"
-            >
-              Sign In
-            </Link>
+            {isPending ? null : session ? (
+              <DropdownMenu>
+                {/* Account trigger */}
+                <DropdownMenuTrigger className="col-span-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#123D30] px-4 text-sm font-semibold text-white transition-colors outline-none hover:bg-[#1C5140]">
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={username || "User"}
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C6A15B] font-bold text-[#123D30]">
+                      {firstLetter}
+                    </span>
+                  )}
 
-            <Link
-              href="/sign-up"
-              onClick={closeMenu}
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#123D30] px-4 text-sm font-semibold text-[#123D30] transition-colors hover:bg-[#E8DCCB]"
-            >
-              Sign Up
-            </Link>
+                  <span>{username || "My Account"}</span>
+
+                  <span aria-hidden="true">⌄</span>
+                </DropdownMenuTrigger>
+
+                {/* Dropdown content */}
+                <DropdownMenuContent align="end">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>
+                      {username || "My Account"}
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer text-red-600 focus:text-red-600"
+                  >
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  onClick={closeMenu}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#123D30] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#1C5140]"
+                >
+                  Sign In
+                </Link>
+
+                <Link
+                  href="/sign-up"
+                  onClick={closeMenu}
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#123D30] px-4 text-sm font-semibold text-[#123D30] transition-colors hover:bg-[#E8DCCB]"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </nav>
