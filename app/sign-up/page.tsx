@@ -21,6 +21,7 @@ export default function SignUpPage() {
     const fullName = String(formData.get("fullName") ?? "").trim()
     const email = String(formData.get("email") ?? "").trim()
     const password = String(formData.get("password") ?? "")
+    
 
     if (
       password.length < 6 ||
@@ -38,6 +39,7 @@ export default function SignUpPage() {
         name: fullName,
         email,
         password,
+        role:role,
       })
 
       if (error) {
