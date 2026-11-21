@@ -75,7 +75,7 @@ const menuItemsByRole: Record<DashboardRole, MenuItem[]> = {
     {
       id: "add-service",
       name: "Add Service",
-      url: "/dashboard/vendor/add-service",
+      url: "/dashboard/vendor/my-services/new",
       icon: PlusCircle,
     },
     {
