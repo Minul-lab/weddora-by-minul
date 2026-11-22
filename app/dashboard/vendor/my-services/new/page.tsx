@@ -20,8 +20,10 @@ import { Button } from "@/components/ui/button"
 import { useForm, Controller } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
+import { CreateServices } from "@/lib/actions/services"
 
 // Validation schema
+
 const serviceSchema = yup.object({
   serviceName: yup
     .string()
@@ -82,7 +84,8 @@ export default function AddServicePage() {
       setIsSubmitting(true)
 
       // TODO: Implement service creation API
-      console.log("Service Data:", data)
+      const result =await CreateServices(data);
+      console.log("Service Data:", result)
 
       // router.push("/dashboard/vendor/my-services")
     } catch (error) {
