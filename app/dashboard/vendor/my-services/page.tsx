@@ -1,4 +1,4 @@
-import ServiceList from "@/app/components/serviceList"
+import ServiceCard from "@/app/components/serviceCard"
 import { getServices } from "@/lib/api/services"
 
 
@@ -10,8 +10,9 @@ export default async function MyServicesPage() {
     : response?.data || response?.services || []
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-full bg-[#FAF8F2] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
+        {/* Header */}
         <div className="mb-8">
           <p className="mb-2 text-sm font-medium tracking-widest text-[#C6A15B] uppercase">
             Vendor Dashboard
@@ -24,6 +25,7 @@ export default async function MyServicesPage() {
           </p>
         </div>
 
+        {/* Listings Header */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#123D30]">
             Your Listings
@@ -34,7 +36,31 @@ export default async function MyServicesPage() {
           </span>
         </div>
 
-        <ServiceList services={services} />
+        {/* Services */}
+        {services.length === 0 ? (
+          <div className="rounded-2xl border border-[#E5DED2] bg-white p-10 text-center">
+            <h3 className="text-xl font-semibold text-[#123D30]">
+              No Services Found
+            </h3>
+
+            <p className="mt-2 text-[#6F8778]">
+              You haven't published any services yet.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-5">
+            {services.map((service: any) => (
+              <ServiceCard
+                key={
+                  typeof service._id === "string"
+                    ? service._id
+                    : service._id.$oid
+                }
+                service={service}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

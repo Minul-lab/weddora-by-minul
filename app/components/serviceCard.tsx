@@ -1,4 +1,24 @@
-type Service = {
+"use client"
+import Image from "next/image"
+import { Trash2Icon } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { DeleteService } from "@/lib/actions/services"
+import { useRouter } from "next/navigation"
+import { toast } from "@/components/ui/toast"
+
+export type Service = {
   _id: string | { $oid: string }
   serviceName: string
   category: string
@@ -10,14 +30,28 @@ type Service = {
   isAvailable?: boolean
 }
 
+
 export default function ServiceCard({ service }: { service: Service }) {
+    const router = useRouter()
+    const handleDeleteService = async() =>{
+       const res = await DeleteService(service._id as string)
+       console.log("deleting",res)
+
+        router.refresh()
+        toast.add({
+          title: "warning",
+          description: "service deleted",
+        })
+    }
   return (
     <div className="overflow-hidden rounded-2xl border border-[#E5DED2] bg-white shadow-sm transition hover:shadow-md">
       <div className="flex flex-col sm:flex-row">
         <div className="h-56 w-full shrink-0 sm:h-auto sm:w-64">
-          <img
+          <Image
             src={service.image}
             alt={service.serviceName}
+            width={50}
+            height={100}
             className="h-full w-full object-cover"
           />
         </div>
@@ -78,12 +112,30 @@ export default function ServiceCard({ service }: { service: Service }) {
               Update
             </button>
 
-            <button
-              type="button"
-              className="rounded-xl border border-red-200 px-5 py-2 text-sm font-semibold text-red-600"
-            >
-              Delete
-            </button>
+            <AlertDialog>
+              <AlertDialogTrigger
+                render={<Button variant="destructive">Delete Service</Button>}
+              />
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                    <Trash2Icon />
+                  </AlertDialogMedia>
+                  <AlertDialogTitle>Delete service?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete this service. 
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel variant="outline">
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction variant="destructive" onClick={handleDeleteService}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <button
               type="button"

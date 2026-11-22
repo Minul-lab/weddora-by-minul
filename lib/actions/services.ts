@@ -1,5 +1,5 @@
 const BaserUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000"
-export const CreateServices = async(data:FormData)=>{
+export const CreateServices = async(data: Record<string, unknown>)=>{
     const res = await fetch(`${BaserUrl}/services `, {
         method: "POST",
         headers: {
@@ -11,4 +11,18 @@ export const CreateServices = async(data:FormData)=>{
     throw new Error("Failed to create service");
   }
     return  res.json()
+}
+export const DeleteService = async(jobId:string)=>{
+    const res = await fetch(`${BaserUrl}/services/${jobId} `, {
+        method: "DELETE",
+        headers: {
+            'content-type': 'application/json',
+        },
+        
+    })
+    if (!res.ok) {
+    throw new Error("Failed to delete service");
+    return  res.json()
+  }
+   
 }

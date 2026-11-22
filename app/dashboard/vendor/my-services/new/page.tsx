@@ -96,7 +96,7 @@ export default function AddServicePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F2] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-full bg-[#FAF8F2] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-2xl bg-white p-6 shadow-lg sm:p-8 lg:p-10">
           <h2 className="mb-4 text-2xl font-bold text-[#123D30]">

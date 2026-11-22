@@ -19,7 +19,7 @@ import {
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/services", label: "Browse Services" },
+  { href: "/browse-services", label: "Browse Services" },
 ]
 
 export default function Navbar() {
