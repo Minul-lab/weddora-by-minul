@@ -18,7 +18,7 @@ import { DeleteService } from "@/lib/actions/services"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
 
-export type Service = {
+export type IService = {
   _id: string | { $oid: string }
   serviceName: string
   category: string
@@ -31,7 +31,7 @@ export type Service = {
 }
 
 
-export default function ServiceCard({ service }: { service: Service }) {
+export default function ServiceCard({ service }: { service: IService }) {
     const router = useRouter()
     const handleDeleteService = async() =>{
        const res = await DeleteService(service._id as string)

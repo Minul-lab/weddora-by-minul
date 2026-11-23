@@ -1,7 +1,36 @@
-const BaserUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000"
+import { IService } from "@/app/components/serviceCard";
 
-export const  getServices =async ()=>{
-    const res =await fetch(`${BaserUrl}/services`)
-    const data = res.json()
-    return data;
-}
+const BaseUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000";
+export type ServiceFilters = {
+  search?: string;
+  category?: string;
+  location?: string;
+};
+
+export const getServices = async (
+  filters: ServiceFilters = {}
+): Promise<IService[]> => {
+  const params = new URLSearchParams();
+
+  if (filters.search) {
+    params.set("search", filters.search);
+  }
+
+  if (filters.category) {
+    params.set("category", filters.category);
+  }
+
+  if (filters.location) {
+    params.set("location", filters.location);
+  }
+
+  const queryString = params.toString();
+
+  const res = await fetch(
+    `${BaseUrl}/services${queryString ? `?${queryString}` : ""}`
+  );
+
+  const data = await res.json();
+
+  return data;
+};

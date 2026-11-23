@@ -1,4 +1,4 @@
-import ServiceCard from "@/app/components/serviceCard"
+import ServiceCard, { IService } from "@/app/components/serviceCard"
 import { getServices } from "@/lib/api/services"
 
 
@@ -44,12 +44,12 @@ export default async function MyServicesPage() {
             </h3>
 
             <p className="mt-2 text-[#6F8778]">
-              You haven't published any services yet.
+              You haven&apost published any services yet.
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-5">
-            {services.map((service: any) => (
+            {services.map((service: IService) => (
               <ServiceCard
                 key={
                   typeof service._id === "string"
