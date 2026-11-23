@@ -7,9 +7,13 @@ export type ServiceFilters = {
   location?: string;
 };
 
+export type ServicesResponse =
+  | IService[]
+  | { data?: IService[]; services?: IService[] }
+
 export const getServices = async (
   filters: ServiceFilters = {}
-): Promise<IService[]> => {
+): Promise<ServicesResponse> => {
   const params = new URLSearchParams();
 
   if (filters.search) {
