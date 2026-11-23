@@ -23,6 +23,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { CreateServices } from "@/lib/actions/services"
 import type { ServiceFormValues } from "@/types"
+import { getServiceCount } from "@/lib/api/services"
 
 // Validation schema
 
@@ -84,8 +85,6 @@ export default function AddServicePage() {
   const onSubmit = async (data: ServiceFormValues) => {
     setSubmitError("")
 
-    // The vendor identity always comes from the authenticated session, never
-    // from the form, so a user cannot submit a service on someone else's behalf.
     if (!session?.user) {
       setSubmitError("You must be signed in as a vendor to publish a service.")
       return
@@ -94,12 +93,23 @@ export default function AddServicePage() {
     try {
       setIsSubmitting(true)
 
+      // Check how many services this vendor already has
+      const serviceCount = await getServiceCount(session.user.id)
+
+      // If the vendor has 10 or more services, redirect to payment
+      if (serviceCount >= 10) {
+        router.push("/payment")
+        return
+      }
+
+      // Otherwise, create the service
       const result = await CreateServices({
         ...data,
         vendorId: session.user.id,
         vendorEmail: session.user.email,
         vendorName: session.user.name,
       })
+
       console.log("Service Data:", result)
 
       router.push("/dashboard/vendor/my-services")

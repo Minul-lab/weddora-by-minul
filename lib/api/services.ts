@@ -49,3 +49,24 @@ export const getServicesById = async (
   const data = await res.json();
   return data;
 };
+
+//service count
+export const getServiceCount = async (vendorId?: string): Promise<number> => {
+  const params = new URLSearchParams();
+
+  if (vendorId) {
+    params.set("vendorId", vendorId);
+  }
+
+  const res = await fetch(
+    `${BaseUrl}/services/count?${params.toString()}`
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch service count");
+  }
+
+  const data = await res.json();
+
+  return data.count;
+};
