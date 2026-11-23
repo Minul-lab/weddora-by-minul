@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { authClient } from "@/lib/auth-client"
 
 import { Label, Input } from "@/components/ui/form"
 
@@ -58,8 +59,10 @@ type ServiceFormValues = yup.InferType<typeof serviceSchema>
 
 export default function AddServicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState("")
 
   const router = useRouter()
+  const { data: session, isPending: isSessionPending } = authClient.useSession()
 
   const {
     register,
@@ -80,16 +83,31 @@ export default function AddServicePage() {
   })
 
   const onSubmit = async (data: ServiceFormValues) => {
+    setSubmitError("")
+
+    // The vendor identity always comes from the authenticated session, never
+    // from the form, so a user cannot submit a service on someone else's behalf.
+    if (!session?.user) {
+      setSubmitError("You must be signed in as a vendor to publish a service.")
+      return
+    }
+
     try {
       setIsSubmitting(true)
 
-      // TODO: Implement service creation API
-      const result =await CreateServices(data);
+      const result = await CreateServices({
+        ...data,
+        vendorId: session.user.id,
+        vendorEmail: session.user.email,
+        vendorName: session.user.name,
+      })
       console.log("Service Data:", result)
 
-      // router.push("/dashboard/vendor/my-services")
+      router.push("/dashboard/vendor/my-services")
+      router.refresh()
     } catch (error) {
       console.error("Error creating service:", error)
+      setSubmitError("Unable to publish the service. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -288,11 +306,17 @@ export default function AddServicePage() {
               </p>
             </div>
 
+            {submitError && (
+              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                {submitError}
+              </p>
+            )}
+
             {/* Submit */}
             <div>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isSessionPending}
                 className="w-full rounded-2xl bg-[#123D30] px-4 py-3 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#1C5140] focus-visible:ring-2 focus-visible:ring-[#C6A15B] focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 {isSubmitting ? "Creating Service..." : "Publish Service"}

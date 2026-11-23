@@ -48,7 +48,7 @@ export default function BrowseServiceCard({
   const handleViewDetails = () => {
     if (!serviceId || isPending) return
 
-    const detailsUrl = `/services/${serviceId}`
+    const detailsUrl = `/browse-services/${serviceId}`
 
     if (session) {
       router.push(detailsUrl)

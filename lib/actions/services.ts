@@ -1,28 +1,48 @@
-const BaserUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000"
-export const CreateServices = async(data: Record<string, unknown>)=>{
-    const res = await fetch(`${BaserUrl}/services `, {
-        method: "POST",
-        headers: {
-            'content-type': 'application/json',
-        },
-        body:JSON.stringify(data),
-    })
-    if (!res.ok) {
-    throw new Error("Failed to create service");
-  }
-    return  res.json()
+const BaseUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.SERVER_DEFAULT_API ||
+  "http://localhost:8000"
+
+export type CreateServicePayload = {
+  serviceName: string
+  category: string
+  description: string
+  price: number
+  location: string
+  image: string
+  // Vendor identity is attached from the authenticated session on the client.
+  vendorId: string
+  vendorEmail: string
+  vendorName: string
 }
-export const DeleteService = async(jobId:string)=>{
-    const res = await fetch(`${BaserUrl}/services/${jobId} `, {
-        method: "DELETE",
-        headers: {
-            'content-type': 'application/json',
-        },
-        
-    })
-    if (!res.ok) {
-    throw new Error("Failed to delete service");
-    return  res.json()
+
+export const CreateServices = async (data: CreateServicePayload) => {
+  const res = await fetch(`${BaseUrl}/services`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to create service")
   }
-   
+
+  return res.json()
+}
+
+export const DeleteService = async (jobId: string) => {
+  const res = await fetch(`${BaseUrl}/services/${jobId}`, {
+    method: "DELETE",
+    headers: {
+      "content-type": "application/json",
+    },
+  })
+
+  if (!res.ok) {
+    throw new Error("Failed to delete service")
+  }
+
+  return res.json()
 }

@@ -38,3 +38,16 @@ export const getServices = async (
 
   return data;
 };
+
+export const getServicesById = async (
+  id: string
+): Promise<IService> => {
+  const res = await fetch(`${BaseUrl}/services/${id}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch service details");
+  }
+
+  const data = await res.json();
+  return data;
+};
