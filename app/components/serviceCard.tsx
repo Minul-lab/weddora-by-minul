@@ -17,24 +17,13 @@ import { Button } from "@/components/ui/button"
 import { DeleteService } from "@/lib/actions/services"
 import { useRouter } from "next/navigation"
 import { toast } from "@/components/ui/toast"
-
-export type IService = {
-  _id: string | { $oid: string }
-  serviceName: string
-  category: string
-  description: string
-  price: number
-  location: string
-  image: string
-  approvalStatus?: string
-  isAvailable?: boolean
-}
-
+import type { IService } from "@/types"
+import { getServiceId } from "@/lib/utils"
 
 export default function ServiceCard({ service }: { service: IService }) {
     const router = useRouter()
     const handleDeleteService = async() =>{
-       const res = await DeleteService(service._id as string)
+       const res = await DeleteService(getServiceId(service))
        console.log("deleting",res)
 
         router.refresh()

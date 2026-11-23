@@ -26,16 +26,7 @@ import {
   ReceiptText,
 } from "lucide-react"
 
-import type { LucideIcon } from "lucide-react"
-
-type DashboardRole = "customer" | "vendor" | "admin"
-
-type MenuItem = {
-  id: string
-  name: string
-  url: string
-  icon: LucideIcon
-}
+import type { DashboardRole, MenuItem } from "@/types"
 
 const menuItemsByRole: Record<DashboardRole, MenuItem[]> = {
   customer: [

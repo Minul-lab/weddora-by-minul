@@ -2,20 +2,10 @@ import Link from "next/link"
 import { SearchX } from "lucide-react"
 import { getServices } from "@/lib/api/services"
 import BrowseFilters from "./components/browse-filters"
-import BrowseServiceCard, {
-  type BrowseService,
-} from "./components/browse-service-card"
+import BrowseServiceCard from "./components/browse-service-card"
+import type { BrowsePageProps, BrowseService } from "@/types"
 
-type Props = {
-  searchParams: Promise<{
-    search?: string
-    category?: string
-    location?: string
-    sort?: string
-  }>
-}
-
-const BrowsePage = async ({ searchParams }: Props) => {
+const BrowsePage = async ({ searchParams }: BrowsePageProps) => {
   const params = await searchParams
 
   const filters = {

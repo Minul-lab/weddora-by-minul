@@ -13,13 +13,8 @@ import { getServicesById } from "@/lib/api/services"
 import { Toaster } from "@/components/ui/toast"
 import ServiceGallery from "./components/service-gallery"
 import BookingForm from "./components/booking-form"
-import { getServiceId, type ServiceDetail } from "./types"
-
-type Props = {
-  params: Promise<{
-    id: string
-  }>
-}
+import type { ServiceDetail, ServiceDetailPageProps } from "@/types"
+import { getServiceId } from "@/lib/utils"
 
 // Only approved and active services can be booked. The check is defensive so
 // the page still behaves correctly if the backend doesn't filter them itself.
@@ -38,7 +33,7 @@ const isBookable = (service: ServiceDetail) => {
   return true
 }
 
-const ServiceDetailPage = async ({ params }: Props) => {
+const ServiceDetailPage = async ({ params }: ServiceDetailPageProps) => {
   const { id } = await params
 
   let service: ServiceDetail | null = null
@@ -88,11 +83,10 @@ const ServiceDetailPage = async ({ params }: Props) => {
 
   const serviceId = getServiceId(service, id)
 
-  const rawVendorId = service.vendorId as unknown
   const vendorId =
-    typeof rawVendorId === "string"
-      ? rawVendorId
-      : (rawVendorId as { $oid?: string } | null | undefined)?.$oid
+    typeof service.vendorId === "string"
+      ? service.vendorId
+      : service.vendorId?.$oid
 
   const vendorName =
     service.vendor?.businessName ||
@@ -224,6 +218,7 @@ const ServiceDetailPage = async ({ params }: Props) => {
             <BookingForm
               serviceId={serviceId}
               vendorId={vendorId}
+              vendorName={vendorName}
               serviceName={service.serviceName}
               disabled={!bookable}
               disabledReason={disabledReason}

@@ -22,6 +22,7 @@ import { useForm, Controller } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import { CreateServices } from "@/lib/actions/services"
+import type { ServiceFormValues } from "@/types"
 
 // Validation schema
 
@@ -54,8 +55,6 @@ const serviceSchema = yup.object({
     .required("Image URL is required")
     .url("Please enter a valid image URL"),
 })
-
-type ServiceFormValues = yup.InferType<typeof serviceSchema>
 
 export default function AddServicePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)

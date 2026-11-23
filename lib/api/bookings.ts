@@ -1,15 +1,9 @@
+import type { CreateBookingPayload } from "@/types"
+
 const BaseUrl =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.SERVER_DEFAULT_API ||
   "http://localhost:8000"
-
-export type CreateBookingPayload = {
-  serviceId: string
-  vendorId?: string
-  eventDate: string
-  eventLocation: string
-  message: string
-}
 
 export const createBooking = async (data: CreateBookingPayload) => {
   const res = await fetch(`${BaseUrl}/bookings`, {

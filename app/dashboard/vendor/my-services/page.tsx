@@ -1,5 +1,7 @@
-import ServiceCard, { IService } from "@/app/components/serviceCard"
+import ServiceCard from "@/app/components/serviceCard"
 import { getServices } from "@/lib/api/services"
+import type { IService } from "@/types"
+import { getServiceId } from "@/lib/utils"
 
 
 export default async function MyServicesPage() {
@@ -51,11 +53,7 @@ export default async function MyServicesPage() {
           <div className="flex flex-col gap-5">
             {services.map((service: IService) => (
               <ServiceCard
-                key={
-                  typeof service._id === "string"
-                    ? service._id
-                    : service._id.$oid
-                }
+                key={getServiceId(service)}
                 service={service}
               />
             ))}

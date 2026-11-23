@@ -1,45 +1,78 @@
 "use client"
 
-import { useEffect, useState, type FormEvent } from "react"
-import { CalendarDays, MapPin, MessageSquareText, Send } from "lucide-react"
+import { useState, type FormEvent } from "react"
+import { MapPin, MessageSquareText, Send } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/toast"
-import { createBooking } from "@/lib/api/bookings"
+import { authClient } from "@/lib/auth-client"
+import DatePicker from "@/components/date-picker"
 
-type Props = {
-  serviceId: string
-  vendorId?: string
-  serviceName: string
-  disabled?: boolean
-  disabledReason?: string
+import type { BookingFormProps, BookingLogPayload } from "@/types"
+import { CreateApplication } from "@/lib/actions/application"
+
+// Log booking details
+const logBookingDetails = (details: BookingLogPayload) => {
+  console.log("=== Booking request details ===")
+  console.log("User role:", details.userRole)
+  console.log("User ID:", details.userId)
+  console.log("User email:", details.userEmail)
+  console.log("Vendor ID:", details.vendorId)
+  console.log("Vendor name:", details.vendorName)
+  console.log("Event date:", details.eventDate)
+  console.log("Service ID:", details.serviceId)
+  console.log("Service name:", details.serviceName)
+  console.log("Additional message:", details.message)
+  console.log("Full payload:", details)
 }
 
 export default function BookingForm({
   serviceId,
   vendorId,
+  vendorName,
   serviceName,
   disabled = false,
   disabledReason,
-}: Props) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [minDate, setMinDate] = useState("")
+}: BookingFormProps) {
+  const { data: session } = authClient.useSession()
 
-  // Set on the client so server and client markup stay identical on hydration.
-  useEffect(() => {
-    setMinDate(new Date().toISOString().slice(0, 10))
-  }, [])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [eventDate, setEventDate] = useState("")
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    // 1. Check authentication
+    if (!session?.user) {
+      toast.add({
+        type: "error",
+        title: "Login required",
+        description: "Please log in to request a booking.",
+      })
+      return
+    }
+
+    // 2. Only customers can book
+    if (session.user.role !== "customer") {
+      toast.add({
+        type: "error",
+        title: "Access denied",
+        description: "Only customers can request bookings.",
+      })
+      return
+    }
+
+    // 3. Get form data
     const form = event.currentTarget
     const formData = new FormData(form)
 
-    const eventDate = String(formData.get("eventDate") ?? "")
+    const selectedDate = String(formData.get("eventDate") ?? "")
     const eventLocation = String(formData.get("eventLocation") ?? "").trim()
     const message = String(formData.get("message") ?? "").trim()
 
-    if (!eventDate || !eventLocation) {
+    // 4. Validate required fields
+    if (!selectedDate || !eventLocation) {
       toast.add({
         type: "error",
         title: "Missing details",
@@ -48,7 +81,14 @@ export default function BookingForm({
       return
     }
 
-    if (minDate && eventDate < minDate) {
+    // 5. Validate date
+    const today = new Date()
+
+    const minDate = `${today.getFullYear()}-${String(
+      today.getMonth() + 1
+    ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`
+
+    if (selectedDate < minDate) {
       toast.add({
         type: "error",
         title: "Invalid date",
@@ -60,20 +100,44 @@ export default function BookingForm({
     try {
       setIsSubmitting(true)
 
-      await createBooking({
+      // 6. Prepare application payload
+      const applicationData = {
         serviceId,
         vendorId,
-        eventDate,
+        vendorName,
+        serviceName,
+        userId: session.user.id,
+        userEmail: session.user.email,
+        eventDate: selectedDate,
         eventLocation,
         message,
+      }
+
+      // 7. Log details
+      logBookingDetails({
+        userRole: session.user.role,
+        userId: session.user.id,
+        userEmail: session.user.email,
+        vendorId: vendorId ?? "",
+        vendorName: vendorName ?? "",
+        eventDate: selectedDate,
+        serviceId,
+        serviceName,
+        message,
       })
+
+      // 8. Send POST request to /applications
+      await CreateApplication(applicationData)
 
       toast.add({
         type: "success",
         title: "Request sent",
         description: `Your request for ${serviceName} was sent to the vendor.`,
       })
+
+      // 9. Reset form
       form.reset()
+      setEventDate("")
     } catch (error) {
       toast.add({
         type: "error",
@@ -92,6 +156,7 @@ export default function BookingForm({
     <section className="overflow-hidden rounded-2xl border border-[#E5DED2] bg-white shadow-sm">
       <div className="border-b border-[#E5DED2] bg-[#123D30] px-6 py-5">
         <h2 className="text-xl font-bold text-white">Request a Booking</h2>
+
         <p className="mt-1 text-sm text-white/75">
           Tell the vendor about your event and they&apos;ll get back to you.
         </p>
@@ -102,6 +167,7 @@ export default function BookingForm({
           <p className="text-base font-semibold text-[#123D30]">
             Booking unavailable
           </p>
+
           <p className="mt-2 text-sm leading-6 text-[#6F8778]">
             {disabledReason ??
               "This service is not currently available for new bookings."}
@@ -114,16 +180,15 @@ export default function BookingForm({
               htmlFor="eventDate"
               className="mb-2 flex items-center gap-2 text-sm font-bold text-[#123D30]"
             >
-              <CalendarDays aria-hidden="true" className="h-4 w-4" />
               Event Date
             </label>
-            <Input
+
+            <DatePicker
               id="eventDate"
               name="eventDate"
-              type="date"
-              min={minDate}
-              required
-              className="h-12 rounded-xl border-[#E5DED2] bg-[#FAF8F2] px-4 text-[15px] focus-visible:border-[#123D30] focus-visible:bg-white"
+              value={eventDate}
+              onChange={setEventDate}
+              placeholder="Choose a date"
             />
           </div>
 
@@ -135,6 +200,7 @@ export default function BookingForm({
               <MapPin aria-hidden="true" className="h-4 w-4" />
               Event Location
             </label>
+
             <Input
               id="eventLocation"
               name="eventLocation"
@@ -154,6 +220,7 @@ export default function BookingForm({
               Additional Message
               <span className="font-normal text-[#A9A29A]">(optional)</span>
             </label>
+
             <textarea
               id="message"
               name="message"
@@ -165,11 +232,20 @@ export default function BookingForm({
 
           <Button
             type="submit"
-            disabled={isSubmitting}
-            className="h-12 w-full rounded-xl bg-[#C6A15B] text-base font-bold text-[#123D30] hover:bg-[#b9914c]"
+            disabled={
+              isSubmitting || !session?.user || session.user.role !== "customer"
+            }
+            className="h-12 w-full rounded-xl bg-[#C6A15B] text-base font-bold text-[#123D30] hover:bg-[#b9914c] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Send aria-hidden="true" />
-            {isSubmitting ? "Sending request..." : "Send Booking Request"}
+
+            {isSubmitting
+              ? "Sending request..."
+              : !session?.user
+                ? "Login to Book"
+                : session.user.role !== "customer"
+                  ? "Customers Only"
+                  : "Send Booking Request"}
           </Button>
 
           <p className="text-center text-xs leading-5 text-[#6F8778]">

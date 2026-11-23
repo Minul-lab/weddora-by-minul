@@ -1,15 +1,10 @@
-import { IService } from "@/app/components/serviceCard";
+import type {
+  IService,
+  ServiceFilters,
+  ServicesResponse,
+} from "@/types";
 
 const BaseUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000";
-export type ServiceFilters = {
-  search?: string;
-  category?: string;
-  location?: string;
-};
-
-export type ServicesResponse =
-  | IService[]
-  | { data?: IService[]; services?: IService[] }
 
 export const getServices = async (
   filters: ServiceFilters = {}

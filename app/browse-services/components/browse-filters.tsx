@@ -11,13 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
-export type BrowseFilterValues = {
-  search: string
-  category: string
-  location: string
-  sort: string
-}
+import type { BrowseFilterValues } from "@/types"
 
 const CATEGORIES = [
   "Photography & Videography",

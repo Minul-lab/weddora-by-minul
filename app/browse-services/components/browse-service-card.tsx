@@ -5,20 +5,8 @@ import { useRouter } from "next/navigation"
 import { ArrowUpRight, MapPin, UserRound } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
-import type { IService } from "@/app/components/serviceCard"
-
-export type BrowseService = IService & {
-  images?: string[]
-  status?: string
-  isActive?: boolean
-  vendorName?: string
-  businessName?: string
-  vendor?: {
-    name?: string
-    businessName?: string
-    image?: string
-  } | null
-}
+import type { BrowseService } from "@/types"
+import { getServiceId } from "@/lib/utils"
 
 const getServiceImage = (service: BrowseService) =>
   service.image || service.images?.[0] || ""
@@ -29,9 +17,6 @@ const getVendorName = (service: BrowseService) =>
   service.vendorName ||
   service.vendor?.name ||
   "Weddora Vendor"
-
-const getServiceId = (service: BrowseService) =>
-  typeof service._id === "string" ? service._id : service._id?.$oid || ""
 
 export default function BrowseServiceCard({
   service,

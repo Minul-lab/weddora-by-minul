@@ -1,20 +1,9 @@
+import type { CreateServicePayload } from "@/types"
+
 const BaseUrl =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.SERVER_DEFAULT_API ||
   "http://localhost:8000"
-
-export type CreateServicePayload = {
-  serviceName: string
-  category: string
-  description: string
-  price: number
-  location: string
-  image: string
-  // Vendor identity is attached from the authenticated session on the client.
-  vendorId: string
-  vendorEmail: string
-  vendorName: string
-}
 
 export const CreateServices = async (data: CreateServicePayload) => {
   const res = await fetch(`${BaseUrl}/services`, {
