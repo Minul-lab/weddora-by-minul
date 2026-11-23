@@ -24,6 +24,7 @@ export const CreateApplication = async (data: ApplicationPayload) => {
 export const getApplicationsByUserId = async (userId: string) => {
   const res = await fetch(`${BaseUrl}/applications/user/${userId}`, {
     method: "GET",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
     },
@@ -38,6 +39,7 @@ export const getApplicationsByUserId = async (userId: string) => {
 export const getApplicationsByVendorId = async (vendorID: string) => {
   const res = await fetch(`${BaseUrl}/applications/vendor/${vendorID}`, {
     method: "GET",
+    cache: "no-store",
     headers: {
       "Content-Type": "application/json",
     },

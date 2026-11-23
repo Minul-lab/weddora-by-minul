@@ -1,11 +1,5 @@
-import React from 'react';
+import { CustomerOverview } from "@/app/dashboard/components/dashboard-content"
 
-const CustomerDashboardPage = () => {
-    return (
-        <div>
-            Customer dashboard
-        </div>
-    );
-};
-
-export default CustomerDashboardPage;
+export default function CustomerDashboardPage() {
+  return <CustomerOverview />
+}

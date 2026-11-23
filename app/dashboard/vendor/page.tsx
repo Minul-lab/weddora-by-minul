@@ -1,11 +1,5 @@
-import React from 'react';
+import { VendorOverview } from "@/app/dashboard/components/dashboard-content"
 
-const VendorDashboardPage = () => {
-    return (
-        <div>
-            Vendor dashboard
-        </div>
-    );
-};
-
-export default VendorDashboardPage;
+export default function VendorDashboardPage() {
+  return <VendorOverview />
+}

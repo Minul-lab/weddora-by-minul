@@ -4,7 +4,10 @@ import type {
   ServicesResponse,
 } from "@/types";
 
-const BaseUrl = process.env.SERVER_DEFAULT_API || "http://localhost:8000";
+const BaseUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.SERVER_DEFAULT_API ||
+  "http://localhost:8000";
 
 export const getServices = async (
   filters: ServiceFilters = {}

@@ -8,9 +8,32 @@ import {
 } from "@/components/ui/sidebar"
 import DashBoardSidebar from "../components/dashboardSidebar"
 import { Toaster } from "@/components/ui/toast"
+import { authClient } from "@/lib/auth-client"
+import { usePathname, useRouter } from "next/navigation"
 
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, isPending } = authClient.useSession()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (isPending) return
+    if (!session?.user) {
+      router.replace(`/sign-in?redirect=${encodeURIComponent(pathname)}`)
+      return
+    }
+
+    const routeRole = pathname.split("/")[2]
+    const userRole = session.user.role
+    if (
+      (routeRole === "customer" || routeRole === "vendor" || routeRole === "admin") &&
+      userRole !== routeRole
+    ) {
+      router.replace(`/dashboard/${userRole || "customer"}`)
+    }
+  }, [isPending, pathname, router, session?.user])
+
   // The sidebar is fixed directly below the navbar, so its height has to be
   // available as a CSS variable. Keep it in sync with the real navbar height
   // (responsive logo, mobile menu opening, ...).
@@ -44,7 +67,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <SidebarTrigger />
         </div>
 
-        {children}
+        {isPending || !session?.user ? (
+          <main className="grid min-h-[50vh] place-items-center px-6 text-sm text-[#6F8778]">
+            Loading your dashboard…
+          </main>
+        ) : (
+          children
+        )}
       </SidebarInset>
 
       <Toaster />
