@@ -14,7 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 
-export default function PaymentPage({searchParams}) {
+export default function PaymentPage() {
  
   const premiumFeatures = [
     "Unlimited service listings",
@@ -64,7 +64,7 @@ export default function PaymentPage({searchParams}) {
 
           <div className="flex-1">
             <h3 className="font-semibold text-[#123D30]">
-              You've reached your free listing limit
+              You&apos;ve reached your free listing limit
             </h3>
 
             <p className="mt-1 text-sm text-[#6F8778]">
@@ -103,7 +103,7 @@ export default function PaymentPage({searchParams}) {
 
             <div className="flex-1">
               <p className="mb-5 text-sm font-semibold text-[#123D30]">
-                What's included:
+                What&apos;s included:
               </p>
 
               <ul className="space-y-4">

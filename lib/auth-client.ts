@@ -11,9 +11,6 @@ export const authClient = createAuthClient({
         role: {
           type: "string",
         },
-        subscriptionPlan: {
-          type: "string",
-        },
       },
     }),
   ],

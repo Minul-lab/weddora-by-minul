@@ -80,8 +80,13 @@ export type CreateBookingPayload = {
   message: string
 }
 
-/** Flexible payload for the /applications endpoint. */
-export type ApplicationPayload = Record<string, unknown>
+/** Customer-provided fields for a booking request; identity and status come from the server. */
+export type ApplicationPayload = {
+  serviceId: string
+  eventDate: string
+  eventLocation: string
+  message?: string
+}
 
 export type DashboardRole = "customer" | "vendor" | "admin"
 

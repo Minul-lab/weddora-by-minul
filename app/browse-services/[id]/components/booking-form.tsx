@@ -9,28 +9,11 @@ import { toast } from "@/components/ui/toast"
 import { authClient } from "@/lib/auth-client"
 import DatePicker from "@/components/date-picker"
 
-import type { BookingFormProps, BookingLogPayload } from "@/types"
+import type { BookingFormProps } from "@/types"
 import { CreateApplication } from "@/lib/actions/application"
-
-// Log booking details
-const logBookingDetails = (details: BookingLogPayload) => {
-  console.log("=== Booking request details ===")
-  console.log("User role:", details.userRole)
-  console.log("User ID:", details.userId)
-  console.log("User email:", details.userEmail)
-  console.log("Vendor ID:", details.vendorId)
-  console.log("Vendor name:", details.vendorName)
-  console.log("Event date:", details.eventDate)
-  console.log("Service ID:", details.serviceId)
-  console.log("Service name:", details.serviceName)
-  console.log("Additional message:", details.message)
-  console.log("Full payload:", details)
-}
 
 export default function BookingForm({
   serviceId,
-  vendorId,
-  vendorName,
   serviceName,
   disabled = false,
   disabledReason,
@@ -103,29 +86,12 @@ export default function BookingForm({
       // 6. Prepare application payload
       const applicationData = {
         serviceId,
-        vendorId,
-        vendorName,
-        serviceName,
-        userId: session.user.id,
-        userEmail: session.user.email,
         eventDate: selectedDate,
         eventLocation,
         message,
       }
 
       // 7. Log details
-      logBookingDetails({
-        userRole: session.user.role,
-        userId: session.user.id,
-        userEmail: session.user.email,
-        vendorId: vendorId ?? "",
-        vendorName: vendorName ?? "",
-        eventDate: selectedDate,
-        serviceId,
-        serviceName,
-        message,
-      })
-
       // 8. Send POST request to /applications
       await CreateApplication(applicationData)
 
