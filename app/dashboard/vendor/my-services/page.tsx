@@ -3,8 +3,12 @@ import { getServices } from "@/lib/api/services"
 import type { IService } from "@/types"
 import { getServiceId } from "@/lib/utils"
 
+import { getServerSession } from "@/lib/core/getsession"
+
 
 export default async function MyServicesPage() {
+  const session = await getServerSession()
+  
   const response = await getServices()
 
   const services = Array.isArray(response)

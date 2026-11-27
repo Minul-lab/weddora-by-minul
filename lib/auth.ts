@@ -18,7 +18,11 @@ export const auth = betterAuth({
           role: {
               type: "string",
               input: true
-            } 
+            },
+          subscriptionPlan: {
+              type: "string",
+              input: false,
+            },
         }
     }
 });

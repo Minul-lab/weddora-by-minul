@@ -24,6 +24,7 @@ import * as yup from "yup"
 import { CreateServices } from "@/lib/actions/services"
 import type { ServiceFormValues } from "@/types"
 import { getServiceCount } from "@/lib/api/services"
+import { getPremiumUserById } from "@/lib/actions/userPremium"
 
 // Validation schema
 
@@ -95,10 +96,12 @@ export default function AddServicePage() {
 
       // Check how many services this vendor already has
       const serviceCount = await getServiceCount(session.user.id)
+      const  IsPremium = await getPremiumUserById(session.user.id)
+      console.log(IsPremium)
 
-      // If the vendor has 10 or more services, redirect to payment
-      if (serviceCount >= 10) {
-        router.push("/payment")
+      // Free vendors can have at most three services; Premium vendors are unlimited.
+      if (!IsPremium.premium && serviceCount >= 3) {
+        router.push("/dashboard/vendor/subscription")
         return
       }
 
@@ -111,8 +114,11 @@ export default function AddServicePage() {
       })
 
       console.log("Service Data:", result)
-
+      if(result.insertedId){
       router.push("/dashboard/vendor/my-services")
+
+      }
+
       router.refresh()
     } catch (error) {
       console.error("Error creating service:", error)
