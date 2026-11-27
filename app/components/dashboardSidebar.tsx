@@ -28,6 +28,7 @@ import {
 
 import type { DashboardRole, MenuItem } from "@/types"
 
+
 const menuItemsByRole: Record<DashboardRole, MenuItem[]> = {
   customer: [
     {

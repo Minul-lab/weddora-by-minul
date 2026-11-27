@@ -9,7 +9,9 @@ import { getServerSession } from "@/lib/core/getsession"
 export default async function MyServicesPage() {
   const session = await getServerSession()
   
-  const response = await getServices()
+const response = await getServices({
+  vendorId: session?.user?.id,
+})
 
   const services = Array.isArray(response)
     ? response

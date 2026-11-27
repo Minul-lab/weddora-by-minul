@@ -53,6 +53,7 @@ export type ServiceFilters = {
   search?: string
   category?: string
   location?: string
+  vendorId?: string
 }
 
 export type ServicesResponse =

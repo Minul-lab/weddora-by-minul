@@ -35,3 +35,6 @@ export const DeleteService = async (jobId: string) => {
 
   return res.json()
 }
+
+
+ 

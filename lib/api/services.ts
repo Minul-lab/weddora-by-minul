@@ -25,6 +25,9 @@ export const getServices = async (
   if (filters.location) {
     params.set("location", filters.location);
   }
+  if (filters.vendorId) {
+    params.set("vendorId", filters.vendorId);
+  }
 
   const queryString = params.toString();
 
