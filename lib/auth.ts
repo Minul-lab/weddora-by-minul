@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { admin } from "better-auth/plugins"
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
@@ -24,5 +25,8 @@ export const auth = betterAuth({
               input: false,
             },
         }
-    }
+    },
+    plugins: [
+        admin() 
+    ]
 });
