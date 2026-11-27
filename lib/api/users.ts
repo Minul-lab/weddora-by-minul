@@ -2,22 +2,33 @@ import { headers } from "next/headers";
 import { auth } from "../auth";
 
 
-const BaseUrl =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.SERVER_DEFAULT_API ||
-  "http://localhost:8000";
+
 
 
 export const getUsers = async ()=> {
-  const users = await auth.api.listUsers({
-    query: {
-         // The offset to start from.
-        sortBy: "name", // The field to sort by.
-        sortDirection: "desc", // The direction to sort by.
-        // The operator to use for the filter.
-    },
-    // This endpoint requires session cookies.
-    headers: await headers(),
-});
-return users;
-}   
+  const requestHeaders = await headers()
+  const pageSize = 100
+  let offset = 0
+  let total = 0
+  const users = []
+
+  do {
+    const page = await auth.api.listUsers({
+      query: {
+        limit: pageSize,
+        offset,
+        sortBy: "name",
+        sortDirection: "asc",
+      },
+      headers: requestHeaders,
+    })
+
+    users.push(...page.users)
+    total = page.total
+    offset = users.length
+
+    if (page.users.length === 0) break
+  } while (offset < total)
+
+  return { users, total }
+}
